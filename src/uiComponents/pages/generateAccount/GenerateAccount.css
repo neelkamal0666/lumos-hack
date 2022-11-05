@@ -1,0 +1,15 @@
+.buttonAccount {
+    height: 35px;
+    font-size: 15px;
+    background-color: #6ad3165c;
+}
+.address{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #910d91e3;
+    width: 236px;
+    height: 43px;
+    border-radius: 20px;
+    color: white;
+}
