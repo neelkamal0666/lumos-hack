@@ -136,7 +136,7 @@ export const LoginOtp = () => {
                 setLoader(false)
                 dispatch(appActions.setClaimReward(true));
                 
-                navigate(`/claimreward/QmcU3vixShmYRUtzx7uYENT1pTHjdh1JGNigdjUH1Hgs1o`);
+                navigate(`/claimreward/${appCtx.paymentData.ipfsUrl}`);
                 // localStorage.setItem('claimreward',true);
                 localStorage.setItem('login',true);
             }, (error) => {

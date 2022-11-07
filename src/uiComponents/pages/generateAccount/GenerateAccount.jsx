@@ -101,7 +101,7 @@ export const GenerateAccount = () => {
                         ''
                     }
                     {appCtx.paymentData.ipfsHash ?
-                        <CustomButton primary={false} onClick={() => { window.open(`/claimreward/QmSWGcs56vx99yHQZNSzjQRAxFPJG9mHeNmdyexNBTCwYz`,'_blank') }}
+                        <CustomButton primary={false} onClick={() => { window.open(`/claimreward/${appCtx.paymentData.ipfsUrl}`,'_blank') }}
                             className='cursor-pointer mt-[30px] w-[100%]'
                         >
                             Go to reward page

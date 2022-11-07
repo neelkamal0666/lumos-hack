@@ -150,6 +150,7 @@ const Mint = ({setIpfsUrl,setNftData}) => {
             );
         }
     };
+   
     const handleDoneClicked = useCallback(() => {
 
         console.log(appCtx)
@@ -183,7 +184,7 @@ const Mint = ({setIpfsUrl,setNftData}) => {
             const data = {
                 collection: id,
                 name: title,
-                description,
+                description:description,
                 properties: kv,
                 type: type,
                 ipfsHash: ipfsHash,
@@ -191,7 +192,7 @@ const Mint = ({setIpfsUrl,setNftData}) => {
                 displayImageUrl: displayImageUrl
             };
 
-
+           
             makeRequest(
                 {
                     url: `https://bs-dev.api.onnftverse.com/v1/external/metadata/ipfs/upload`,
@@ -209,25 +210,29 @@ const Mint = ({setIpfsUrl,setNftData}) => {
                 },
                 (data) => {
                     console.log(data);
-                    setIpfsUrl(data.ipfsUrl);
-                    
+                    // setIpfsUrl(data.ipfsUrl);
                     localStorage.setItem('ipfsUrl',data.ipfsUrl.substring(7, data.ipfsUrl.length));
                     dispatch(
                         appActions.paymentData({
                             ipfsUrl: data.ipfsUrl.substring(7, data.ipfsUrl.length), 
-                            ipfsHash: appCtx.paymentData.ipfsHash
+                            ipfsHash: ipfsHash,
+                            assetId:appCtx.paymentData.assetId,
+                            s3url:appCtx.paymentData.s3url,
+                            assetType:appCtx.paymentData.assetType,
                         })
                     )
+                  
 
                     makeRequest(
                         {
                             url: `https://nftverse.mypinata.cloud/ipfs${data.ipfsUrl.substring(6, data.ipfsUrl.length)}`,
-                            method: "GET",
                         },
-                        (datas) => {
+                        (data) => {
         
-                            console.log(datas);
-                            setNftData(datas);
+                            console.log(data);
+                            // localStorage.setITem('nftData',data);
+                            // setNftData(data);
+                            dispatch(appActions.setNftData(data));
                         }
                     )
                 }
@@ -235,31 +240,31 @@ const Mint = ({setIpfsUrl,setNftData}) => {
 
 
             type !== 'text' ? (data.ipfsHash = ipfsHash) : (data.description = text);
-            // toast.promise(
-            //     () =>
-            //         makeRequest(
-            //             {
-            //                 url: `https://bs-dev.api.onnftverse.com/v1/marketplace/3/blockchain/${localStorage.getItem("blockchain")}/nft/mint`,
-            //                 data,
-            //                 method: 'POST',
-            //                 headers: {
-            //                     'Content-Type': 'application/json',
-            //                     'X-Auth-Token': appCtx.authToken,
+            toast.promise(
+                () =>
+                    makeRequest(
+                        {
+                            url: `https://bs-dev.api.onnftverse.com/v1/marketplace/3/blockchain/${localStorage.getItem("blockchain")}/nft/mint`,
+                            data,
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Auth-Token': appCtx.authToken,
 
-            //                 }
-            //             },
-            //             (res) => {
-            //                 console.log(res)
-            //                 navigate(`/`)
-            //                 localStorage.setItem('claim',true);
-            //             },
-            //         ),
-            //     {
-            //         pending: 'Updating your NFT...',
-            //         success: 'Minting request Successfull',
-            //         error: 'Something went wrong!'
-            //     }
-            // );
+                            }
+                        },
+                        (res) => {
+                            console.log(res)
+                            window.scroll(0,0)
+                            localStorage.setItem('claim',true);
+                        },
+                    ),
+                {
+                    pending: 'Updating your NFT...',
+                    success: 'Minting request Successfull.... Please click on reward page',
+                    error: 'Something went wrong!'
+                }
+            );
             // setInterval(() => {
                 // navigate(`/`)
             // }, 2000);

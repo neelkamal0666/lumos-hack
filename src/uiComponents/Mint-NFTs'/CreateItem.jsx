@@ -69,6 +69,7 @@ const CreateItem = ({setIpfsUrl,setNftData}) => {
                     console.log(res)
                     setUploading(false);
                     setAsset(res.data);
+                    
                     dispatch(
                         appActions.paymentData({
                             ipfsHash: res.data.ipfsHash,

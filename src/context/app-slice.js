@@ -35,6 +35,7 @@ const appSlice = createSlice({
         imageSrc:null,
         mintNft:false,
         claimReward:false,
+        nftData:{},
         paymentData: {
             usdToEthereumPrice: '',
             marketId: '',
@@ -75,6 +76,9 @@ const appSlice = createSlice({
                 email,
                 name,
             };
+        },
+        setNftData(state,action){
+            state.nftData = action.payload;
         },
         updateColors(state,action){
             state.colors={

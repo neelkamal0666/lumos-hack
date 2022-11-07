@@ -14,16 +14,16 @@ import { EastOutlined } from '@mui/icons-material';
 import { CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-export const ClaimYourRewar = ({claimReward,setClaimedReward,ipfsUrl,nftData}) => {
+export const ClaimYourRewar = ({ claimReward, setClaimedReward, ipfsUrl, nftData }) => {
     const makeRequest = useHttp();
     const [showDescription, setShowDescription] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
     const [isloading, setLoading] = useState(false);
     const { ethereum } = window;
     const appCtx = useSelector((state) => state.app);
-    const [once,setOnce] =useState(true);
-    if(once)
-        setClaimedReward(localStorage.getItem('claimreward')==='undefined'?true:localStorage.getItem('claimreward')==='true'?true:false)
+    const [once, setOnce] = useState(true);
+    if (once)
+        setClaimedReward(localStorage.getItem('claimreward') === 'undefined' ? true : localStorage.getItem('claimreward') === 'true' ? true : false)
     else
         setClaimedReward(false)
     console.log(claimReward);
@@ -539,16 +539,15 @@ export const ClaimYourRewar = ({claimReward,setClaimedReward,ipfsUrl,nftData}) =
 
             const accounts = await getCurrentAccount();
 
-            const mint = await window.contract.methods.mintNFT(accounts[0], "ipfs://QmSWGcs56vx99yHQZNSzjQRAxFPJG9mHeNmdyexNBTCwYz").send({ from: accounts[0] })
+            const mint = await window.contract.methods.mintNFT(accounts[0], `${appCtx.paymentData.ipfsUrl}`).send({ from: accounts[0] })
                 .catch(() => {
-            setLoading(false);
-
+                    setLoading(false);
                     toast("unable to claim your reward !!");
                 })
             setClaimedReward(false)
             setLoading(false);
             setOnce(false)
-            window.localStorage.setItem("claimReward",false);
+            window.localStorage.setItem("claimReward", false);
 
 
         }
@@ -562,11 +561,11 @@ export const ClaimYourRewar = ({claimReward,setClaimedReward,ipfsUrl,nftData}) =
             <Navbar />
             <div className='w-[100%] px-[30px] flex justify-around items-center my-[20px]'>
                 <div className='w-[30%]'>
-                    {/* {nftData.image ? */}
-                        <img src={`https://nftverse-dev.mypinata.cloud/ipfs/Qmf51B4JWtkCZyzDCvUzH4RfPcmvJVHgYF7K9cmXvTLmHU`} alt="logo" />
-                        {/* :
+                    {appCtx.nftData.image ?
+                        <img src={`https://nftverse-dev.mypinata.cloud/ipfs/${appCtx.paymentData.ipfsHash}`} alt="logo" />
+                        :
                         <CircularProgress />
-                    } */}
+                    }
                 </div>
                 <div className='w-[30%]'>
                     <div className="flex flex-col gap-5">
@@ -575,12 +574,12 @@ export const ClaimYourRewar = ({claimReward,setClaimedReward,ipfsUrl,nftData}) =
                                 <div className='mb-5'>
                                     <spam className="font-semibold mr-[10px]">Name</spam>
 
-                                    Lumos
+                                    {appCtx.nftData.name}
                                 </div>
                                 <div className='mb-5'>
                                     <spam className="font-semibold mr-[10px]">Description</spam>
 
-                                    Hackathon
+                                    {appCtx.nftData.description}
                                 </div>
                             </div>
                         </span>
@@ -592,7 +591,7 @@ export const ClaimYourRewar = ({claimReward,setClaimedReward,ipfsUrl,nftData}) =
                             className='cursor-pointer w-[80%] flex justify-center items-center'
                         >
                             {localStorage.getItem('login') !== 'false' ? <>
-                            Claim NFT {isloading ?< CircularProgress className='ml-[10px]'/>  : ''}
+                                Claim NFT {isloading ? < CircularProgress className='ml-[10px]' /> : ''}
                             </>
                                 :
                                 'Login'
@@ -690,12 +689,12 @@ export const ClaimYourRewar = ({claimReward,setClaimedReward,ipfsUrl,nftData}) =
                                         <div>
                                             <spam className="font-semibold">Name</spam>
                                             <EastOutlined />
-                                            {nftData.name}
+                                            {appCtx.nftData.name}
                                         </div>
                                         <div>
                                             <spam className="font-semibold">Description</spam>
                                             <EastOutlined />
-                                            {nftData.description}
+                                            {appCtx.nftData.description}
                                         </div>
                                     </div>
                                 </span>
