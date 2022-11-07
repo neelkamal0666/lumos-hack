@@ -3,17 +3,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-// import { appActions } from '../context/app-slice';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Cancel, CancelOutlined } from '@mui/icons-material';
+import CustomButton from "../../ui/CustomButton";
 import { appActions } from "../../context/app-slice";
+import useHttp from "../../hooks/use-http";
 
 const imageExtensions = ['jpg', 'jpeg', 'gif', 'tiff', 'psd', 'raw', 'png', 'svg'];
 const videoExtensions = ['mp4', 'mov', 'wmv', 'avi', 'avchd', 'flv', 'f4v', 'swf', 'mkv', 'mpeg-2', 'webm'];
 const threeDExtensions = ['fbx', 'obj', 'gltf', 'glb'];
 const maxFileSize = 500 * 1024 * 1024;
 
-const CreateItem = () => {
+const CreateItem = ({setIpfsUrl,setNftData}) => {
     const [showModal, setShowModal] = useState(false)
     const [uploadFile, setUploadFile] = useState();
     const [uploaded, setUploaded] = useState('0%');
@@ -25,64 +26,69 @@ const CreateItem = () => {
     const [asset, setAsset] = useState(null);
     const location = useLocation();
     const [showUploadSection, setShowUploadSection] = useState(false);
-    const [imageSrc,setImageSrc] = useState('');
+    const [imageSrc, setImageSrc] = useState('');
+    const [mintNft, setMintNft] = useState(false);
     const navigate = useNavigate();
-
     const type = new URL(window.location.href).searchParams.get('type');
     const marketplaceId = appCtx.marketplaceId;
     const dispatch = useDispatch()
+  const makeRequest = useHttp();
+
     const dark = appCtx.isDarkMode;
-console.log(imageSrc);
+    // console.log(imageSrc);
+    
     const submitForm = async () => {
         var data = new FormData();
         data.append('file', uploadFile);
-        console.log(uploadFile,data);
+        console.log(uploadFile, data);
         var reader = new FileReader();
-        reader.onload = function(e){
+        reader.onload = function (e) {
             // var image = document.createElement('img');
             // image.src = e.target.result;
             // document.body.appendChild(image);
             setImageSrc(e.target.result)
+            dispatch(appActions.setImageSrc(e.target.result));
         }
         reader.readAsDataURL(uploadFile);
         // setUploading(true);
-        // let config = {
-        //     method: 'post',
-        //     url: `${process.env.REACT_APP_URL_BLOCKCHAIN_SERVICE}/marketplace/${marketplaceId}/file/upload?type=${fileType}`,
-        //     headers: {
-        //         'Content-Type': 'multipart/form-data',
-        //         'X-Auth-Token': appCtx.authToken
-        //     },
-        //     onUploadProgress: (progressEvent) => {
-        //         setUploaded(`${Number((progressEvent.loaded / uploadFile.size) * 100).toFixed(0)}%`);
-        //     },
-        //     data: data
-        // };
-        // if (uploadFile) {
-        //     axios(config)
-        //         .then((res) => {
-        //             console.log(res)
-        //             setUploading(false);
-        //             setAsset(res.data);
-        //             dispatch(
-        //                 appActions.paymentData({
-        //                     ipfsHash: res.data.ipfsHash,
-        //                     s3url:res.data.s3url,
-        //                     assetId:res.data.assetId,
-        //                     assetType:res.data.type
-        //                 })
-        //             )
-        //             setUploadFinished(true);
-        //             uploadFinished()
-        //         })
-        //         .catch((rej) => {
-        //             if (rej.response.status === 500) {
-        //                 setUploading(false);
-        //                 setUploadFinished(true);
-        //                 setShowModal(true)
-        //             }
-        //         })
-        // }
+        let config = {
+            method: 'post',
+            url: `https://bs-dev.api.onnftverse.com/v1/marketplace/3/file/upload?type=${fileType}`,
+            headers: {
+                'Content-Type': 'multipart/form-data',
+                'X-Auth-Token': appCtx.authToken
+            },
+            onUploadProgress: (progressEvent) => {
+                setUploaded(`${Number((progressEvent.loaded / uploadFile.size) * 100).toFixed(0)}%`);
+            },
+            data: data
+        };
+        if (uploadFile) {
+            axios(config)
+                .then((res) => {
+                    console.log(res)
+                    setUploading(false);
+                    setAsset(res.data);
+                    dispatch(
+                        appActions.paymentData({
+                            ipfsHash: res.data.ipfsHash,
+                            s3url: res.data.s3url,
+                            assetId: res.data.assetId,
+                            assetType: res.data.type
+                        })
+                    )
+                    setUploadFinished(true);
+                    uploadFinished()
+                   
+                })
+                .catch((rej) => {
+                    if (rej.response.status === 500) {
+                        setUploading(false);
+                        setUploadFinished(true);
+                        setShowModal(true)
+                    }
+                })
+        }
 
 
 
@@ -114,8 +120,11 @@ console.log(imageSrc);
         setAsset(null);
         setUploadFile(null);
         setImageSrc(null);
+        dispatch(appActions.setImageSrc(null));
     }
-
+    useEffect(() => {
+        dispatch(appActions.setMintNft(false));
+    }, [dispatch, appCtx.imageSrc])
     const stageForUpload = useCallback(
         (file) => {
             setAsset(null);
@@ -172,10 +181,10 @@ console.log(imageSrc);
     );
     return (
 
-        <div className={`flex flex-col gap-10 text-black`} style={{color:"black"}}>
+        <div className={`flex flex-col sm:flex-row gap-10 text-black px-[20px]`} style={{ color: "black" }}>
 
             {(
-                <div className="xl:grid grid-cols-2 gap-20 mx-[50px] my-[40px]">
+                <div className="sm:grid grid-cols-2 gap-20 py-[40px] w-[100%]">
                     <div className="w-full flex flex-col gap-5">
                         <div className='font-semibold'>Upload asset  (Image , Video ,3D fbx supported )</div>
                         <button
@@ -200,9 +209,9 @@ console.log(imageSrc);
                             <div className="flex flex-col w-full">
                                 <div className="flex justify-between rounded-t  p-4">
                                     <div className="">{uploadFile.name}</div>
-                                    <button onClick={unselectFile}>
+                                    <CustomButton onClick={unselectFile}>
                                         <Cancel />
-                                    </button>
+                                    </CustomButton>
                                 </div>
                                 <div className="flex flex-row">
                                     <div
@@ -214,18 +223,18 @@ console.log(imageSrc);
                             </div>
                         )}
                         <div className="flex justify-center ">
-                            <button
+                            <CustomButton
                                 disabled={!uploadFile || uploading}
-                                className={`px-28`}
+                                className={`px-28 w-[100%]`}
                                 onClick={() => submitForm()}
                             >
                                 Upload
-                            </button>
+                            </CustomButton>
                         </div>
                         {showModal && (
                             <div>
                                 <div className="flex flex-col gap-5 py-6 relative">
-                                    <button className='flex justify-end absolute right-2 -top-3 ' onClick={() => setShowModal(false)}><CancelOutlined /></button>
+                                    <CustomButton className='flex justify-end absolute right-2 -top-3 ' onClick={() => setShowModal(false)}><CancelOutlined /></CustomButton>
                                     <div className='flex w-96 flex-col'>
                                         This uploaded asset is owned & listed on marketplace for sale by
                                         someone else if you think its not you please do Raise a Dispute, we
@@ -236,7 +245,7 @@ console.log(imageSrc);
                             </div>
                         )}
                     </div>
-                    <div className="flex flex-col justify-center gap-3">
+                    <div className="mt-[20px] flex flex-col justify-center gap-3">
                         {/* {asset ? (
                                         <div className="flex flex-col gap-[20vh] ">
                                             {asset?.type === 'image' ? (
@@ -261,25 +270,33 @@ console.log(imageSrc);
                                             )}
                                             <div className='flex justify-center'>
                                             */}
-                                            <button
-                                                className="bg-blue-500 text-slate-200 px-10 h-[40px] rounded-full"
-                                                onClick={() =>
-                                                    navigate(
-                                                        `/mint/sasas`
-                                                    )
-                                                }
-                                            >
-                                                Mint NFT
-                                            </button>
-                                            {/* </div>
+                        <CustomButton
+                            className="bg-blue-500 text-slate-200 px-10 h-[40px] rounded-full"
+                            onClick={() => {
+                                // navigate(
+                                //     `/mint/sasas`
+                                // )
+                                setMintNft(true)
+                                dispatch(appActions.setMintNft(true))
+                            }}
+                        >
+                            Mint NFT
+                        </CustomButton>
+                        {/* </div>
                                         </div>
                                     ) : (  */}
-                                           {/* <div className="w-full">
+                        {/* <div className="w-full">
                                         //         <AssetItem asset={asset} />
                                         // </div>*/}
 
-                    
-                        <div className="text-xl font-light h-[250px] w-[350px] dark:bg-inherit rounded-lg border-[10px] border-gray-100 dark:border-darkBorder shadow-md"><img style={{height:"100%"}} src={imageSrc} alt=''/></div>
+
+                        <div className="text-xl font-light h-[300px] dark:bg-inherit rounded-lg border-[10px] border-gray-100 dark:border-darkBorder shadow-md">
+                            {!(appCtx.imageSrc === '' || appCtx.imageSrc === null) ?
+                                <img style={{ height: "100%", width: "100%" }} src={appCtx.imageSrc} alt='' />
+                                :
+                                <div className="h-[100%] w-[100%] flex justify-center items-center">Click on Upload</div>
+                            }
+                        </div>
                         {/* )} */}
                     </div>
                 </div>

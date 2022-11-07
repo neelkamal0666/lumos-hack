@@ -1,12 +1,15 @@
 import React from 'react'
 import { Navbar } from '../../../Navbar/Navbar'
+import { Footer } from '../../footer/Footer'
+
 import { GenerateAccount } from '../GenerateAccount'
 
-export const Home = () => {
+export const Home = ({claimReward,setClaimedReward}) => {
   return (
     <div>
       <Navbar />
-      <GenerateAccount />
+      <GenerateAccount claimReward={claimReward} setClaimedReward={setClaimedReward}/>
+      <Footer />
     </div>
   )
 }

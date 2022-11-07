@@ -32,6 +32,9 @@ const appSlice = createSlice({
         footerData:{bacgroundColor:null},
         productDetails:[],
         walletLoading:false,
+        imageSrc:null,
+        mintNft:false,
+        claimReward:false,
         paymentData: {
             usdToEthereumPrice: '',
             marketId: '',
@@ -48,7 +51,8 @@ const appSlice = createSlice({
             s3url:'',
             assetType:'',
             scale: '',
-            price: ''
+            price: '',
+            ipfsUrl:'',
         }
     },
     reducers: {
@@ -96,6 +100,7 @@ const appSlice = createSlice({
             const assetId = action.payload.assetId
             const scale = action.payload.scale;
             const price = action.payload.price
+            const ipfsUrl = action.payload.ipfsUrl
             state.paymentData = {
                 usdToEthereumPrice,
                 marketId,
@@ -113,7 +118,17 @@ const appSlice = createSlice({
                 assetType,
                 scale,
                 price,
+                ipfsUrl
             };
+        },
+        setImageSrc(state,action){
+            state.imageSrc = action.payload;
+        },
+        setMintNft(state,action){
+            state.mintNft = action.payload;
+        },
+        setClaimReward(state,action){
+            state.claimReward = action.payload;
         },
         updateAuthToken(state, action) {
             state.authToken = action.payload;
